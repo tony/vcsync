@@ -1,34 +1,24 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"reflect"
 
 	"github.com/Masterminds/vcs"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
 func main() {
-	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
-	pflag.Parse()
-
 	viper.SetConfigName(".vcspull")
 	viper.AddConfigPath("$HOME")
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	dirs := viper.AllKeys()
+	m := map[string]map[string]interface{}{}
 	repos := []vcs.Repo{}
-	for _, x := range dirs {
-
-		v := viper.Sub(x)
-		for _, k := range v.AllKeys() {
-			fmt.Printf("%T\n", k)
-			ExpandConfig(x, k, v.Get(k), &repos, v)
-		}
+	for _, x := range viper.AllKeys() {
+		m[x] = viper.GetStringMap(x)
+		ExpandConfig(x, m[x], &repos)
 	}
 }
 
@@ -37,31 +27,29 @@ type verboseRepo struct {
 	remotes map[string]interface{}
 }
 
-func castToMapStringInterface(
-	src map[interface{}]interface{}) map[string]interface{} {
+func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo) {
+	fmt.Println(dir)
+	for name, repo := range entries {
+		switch repo.(type) {
+		case string:
+			fmt.Printf("name: %v\t repo: %v\n", name, repo)
+		case map[string]verboseRepo:
+			fmt.Printf("string nested name: %v\t repo: %v (%T)\n", name, repo, repo)
+		case map[string]interface{}:
+			fmt.Printf("string nested name: %v\t repo: %v (%T)\n", name, repo, repo)
+		case map[interface{}]interface{}:
+			repo = castToMapStringInterface(repo.(map[interface{}]interface{}))
+			fmt.Println(repo)
+		default:
+			// fmt.Printf("name %v: verbose repo (type %T)\n", name, repo)
+		}
+	}
+}
+
+func castToMapStringInterface(src map[interface{}]interface{}) map[string]interface{} {
 	tgt := map[string]interface{}{}
 	for k, v := range src {
 		tgt[fmt.Sprintf("%v", k)] = v
 	}
 	return tgt
-}
-
-func ExpandConfig(dir string, name string, repoinfo interface{}, repos *[]vcs.Repo, v *viper.Viper) {
-	fmt.Println(dir)
-
-	switch repoinfo.(type) {
-	case string:
-	//
-	case map[interface{}]interface{}:
-		//
-		fmt.Printf("%v\t: %v<%s>\n", name, repoinfo, reflect.TypeOf(repoinfo))
-		vv := castToMapStringInterface(repoinfo.(map[interface{}]interface{}))
-		// vv := v.Sub(name)
-		fmt.Printf("created a sub sub: %v<%T>", vv, vv)
-	case nil:
-		return
-	}
-	if reflect.TypeOf(repoinfo).Kind() == reflect.Map {
-		fmt.Printf("PMG ITS A MAP")
-	}
 }
