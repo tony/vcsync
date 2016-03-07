@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/Masterminds/vcs"
 	"github.com/spf13/viper"
@@ -33,13 +34,16 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo)
 		switch repo.(type) {
 		case string:
 			fmt.Printf("name: %v\t repo: %v\n", name, repo)
-		case map[string]verboseRepo:
-			fmt.Printf("string nested name: %v\t repo: %v (%T)\n", name, repo, repo)
+			u, err := url.Parse(repo.(string))
+			if err != nil {
+				fmt.Println("malformed url")
+			}
+			fmt.Printf("%+v\n", u)
 		case map[string]interface{}:
-			fmt.Printf("string nested name: %v\t repo: %v (%T)\n", name, repo, repo)
+			// fmt.Printf("string nested name: %v\t repo: %v (%T)\n", name, repo, repo)
 		case map[interface{}]interface{}:
-			repo = castToMapStringInterface(repo.(map[interface{}]interface{}))
-			fmt.Println(repo)
+			// repo = castToMapStringInterface(repo.(map[interface{}]interface{}))
+			// fmt.Println(repo)
 		default:
 			// fmt.Printf("name %v: verbose repo (type %T)\n", name, repo)
 		}
