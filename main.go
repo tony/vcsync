@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/Masterminds/vcs"
 	"github.com/spf13/viper"
@@ -19,31 +18,36 @@ func main() {
 	repos := []vcs.Repo{}
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
-		ExpandConfig(x, m[x], &repos)
+		ExpandConfig(x, m[x], &repos, viper.Sub(x))
 	}
 }
 
-type verboseRepo struct {
-	repo    string
-	remotes map[string]interface{}
+type RepoConf struct {
+	name    string
+	url     string
+	path    string
+	remotes map[string]string
 }
 
-func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo) {
+func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo, v *viper.Viper) {
 	fmt.Println(dir)
 	for name, repo := range entries {
+		// fmt.Printf("name: %v\t repo: %v\n", name, repo)
 		switch repo.(type) {
 		case string:
-			fmt.Printf("name: %v\t repo: %v\n", name, repo)
-			u, err := url.Parse(repo.(string))
-			if err != nil {
-				fmt.Println("malformed url")
-			}
-			fmt.Printf("%+v\n", u)
-		case map[string]interface{}:
-			// fmt.Printf("string nested name: %v\t repo: %v (%T)\n", name, repo, repo)
+			// repoConf := RepoConf{
+			// 	name:    name,
+			// 	url:     repo.(string),
+			// 	path:    dir,
+			// 	remotes: nil,
+			// }
+			// fmt.Println(repoConf)
 		case map[interface{}]interface{}:
-			// repo = castToMapStringInterface(repo.(map[interface{}]interface{}))
-			// fmt.Println(repo)
+
+			r := castToMapStringInterface(repo.(map[interface{}]interface{}))
+			fmt.Println(r)
+			fmt.Println(v.Sub(name))
+			//url = r["repo"]
 		default:
 			// fmt.Printf("name %v: verbose repo (type %T)\n", name, repo)
 		}
