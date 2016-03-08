@@ -26,12 +26,12 @@ type RepoConf struct {
 	name    string
 	url     string
 	path    string
-	remotes map[string]string
+	remotes map[string]map[string]string
 }
 
 func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo, v *viper.Viper) {
-	fmt.Println(dir)
-	for name, repo := range entries {
+	//fmt.Println(dir)
+	for _, repo := range entries {
 		// fmt.Printf("name: %v\t repo: %v\n", name, repo)
 		switch repo.(type) {
 		case string:
@@ -43,11 +43,12 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo,
 			// }
 			// fmt.Println(repoConf)
 		case map[interface{}]interface{}:
-
 			r := castToMapStringInterface(repo.(map[interface{}]interface{}))
-			fmt.Println(r)
-			fmt.Println(v.Sub(name))
-			//url = r["repo"]
+			if r["remotes"] != nil {
+				for remote_name, remote := range r["remotes"].(map[interface{}]interface{}) {
+					fmt.Println(remote_name, remote)
+				}
+			}
 		default:
 			// fmt.Printf("name %v: verbose repo (type %T)\n", name, repo)
 		}
