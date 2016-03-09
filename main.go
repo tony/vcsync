@@ -26,27 +26,34 @@ type RepoConf struct {
 	name    string
 	url     string
 	path    string
-	remotes map[string]map[string]string
+	remotes map[string]string
 }
 
 func ExpandConfig(dir string, entries map[string]interface{}, repos *[]vcs.Repo, v *viper.Viper) {
 	//fmt.Println(dir)
-	for _, repo := range entries {
+	for name, repo := range entries {
 		// fmt.Printf("name: %v\t repo: %v\n", name, repo)
 		switch repo.(type) {
 		case string:
-			// repoConf := RepoConf{
-			// 	name:    name,
-			// 	url:     repo.(string),
-			// 	path:    dir,
-			// 	remotes: nil,
-			// }
-			// fmt.Println(repoConf)
+			repoConf := RepoConf{
+				name:    name,
+				url:     repo.(string),
+				path:    dir,
+				remotes: nil,
+			}
+			fmt.Println(repoConf)
 		case map[interface{}]interface{}:
 			r := castToMapStringInterface(repo.(map[interface{}]interface{}))
 			if r["remotes"] != nil {
 				for remote_name, remote := range r["remotes"].(map[interface{}]interface{}) {
-					fmt.Println(remote_name, remote)
+					fmt.Println(RepoConf{
+						name: name,
+						path: dir,
+						url:  r["repo"].(string),
+						remotes: map[string]string{
+							remote_name.(string): remote.(string),
+						},
+					})
 				}
 			}
 		default:
