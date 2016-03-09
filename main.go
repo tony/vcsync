@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/vcs"
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
 
@@ -45,9 +46,9 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 				remotes: nil,
 			})
 		case map[interface{}]interface{}:
-			r := castToMapStringInterface(repo.(map[interface{}]interface{}))
+			r := cast.ToStringMap(repo.(map[interface{}]interface{}))
 			if r["remotes"] != nil {
-				for remote_name, remote := range castToMapStringString(r["remotes"].(map[interface{}]interface{})) {
+				for remote_name, remote := range cast.ToStringMapString(r["remotes"].(map[interface{}]interface{})) {
 					*repos = append(*repos, LegacyRepoConf{
 						name: name,
 						path: dir,
@@ -70,20 +71,4 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 			fmt.Printf("name %v: verbose repo (type %T)\n", name, repo)
 		}
 	}
-}
-
-func castToMapStringInterface(src map[interface{}]interface{}) map[string]interface{} {
-	tgt := map[string]interface{}{}
-	for k, v := range src {
-		tgt[fmt.Sprintf("%v", k)] = v
-	}
-	return tgt
-}
-
-func castToMapStringString(src map[interface{}]interface{}) map[string]string {
-	tgt := make(map[string]string)
-	for k, v := range src {
-		tgt[fmt.Sprintf("%v", k)] = v.(string)
-	}
-	return tgt
 }
