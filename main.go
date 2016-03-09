@@ -46,9 +46,9 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 			repo_url = repo.(string)
 		case map[interface{}]interface{}:
 			log.Printf("name: %v\t repo: %v", name, repo)
-			r := cast.ToStringMap(repo.(map[interface{}]interface{}))
+			r := cast.ToStringMap(repo)
 			if r["remotes"] != nil {
-				remote_map := cast.ToStringMapString(r["remotes"].(map[interface{}]interface{}))
+				remote_map := cast.ToStringMapString(r["remotes"])
 				for remote_name, remote := range remote_map {
 					remotes = map[string]string{
 						remote_name: remote,
