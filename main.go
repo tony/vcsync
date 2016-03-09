@@ -23,8 +23,9 @@ func main() {
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
 		ExpandConfig(x, m[x], &legacyRepos, viper.Sub(x))
-		log.Println(legacyRepos[len(legacyRepos)-1:][0])
+		log.Println(legacyRepos[len(legacyRepos)-1:])
 	}
+	log.Printf("%d repositories loaded.", len(legacyRepos))
 }
 
 type LegacyRepoConf struct {
@@ -35,40 +36,32 @@ type LegacyRepoConf struct {
 }
 
 func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf, v *viper.Viper) {
-	//log.Println(dir)
 	for name, repo := range entries {
-		// log.Printf("name: %v\t repo: %v\n", name, repo)
-		var remotes map[string]string
-		var repo_url string
+		log.Debug("name: %v\t repo: %v", name, repo)
+		legacyRepo := LegacyRepoConf{
+			name: name,
+			path: dir,
+		}
 		switch repo.(type) {
 		case string:
-			remotes = nil
-			repo_url = repo.(string)
+			legacyRepo.url = repo.(string)
 		case map[interface{}]interface{}:
-			log.Printf("name: %v\t repo: %v", name, repo)
 			r := cast.ToStringMap(repo)
 			if r["remotes"] != nil {
-				remote_map := cast.ToStringMapString(r["remotes"])
-				for remote_name, remote := range remote_map {
-					remotes = map[string]string{
-						remote_name: remote,
+				for rname, rurl := range cast.ToStringMapString(r["remotes"]) {
+					legacyRepo.remotes = map[string]string{
+						rname: rurl,
 					}
 				}
 			} else {
-				remotes = nil
 				log.Printf("No remotes detected, check your formatting for %s at %s", name, repo)
 			}
-			repo_url = r["repo"].(string)
+			legacyRepo.url = r["repo"].(string)
 
 		default:
 			log.Printf("undefined name %v: verbose repo (type %T)\n", name, repo)
 			continue
 		}
-		*repos = append(*repos, LegacyRepoConf{
-			name:    name,
-			path:    dir,
-			url:     repo_url,
-			remotes: remotes,
-		})
+		*repos = append(*repos, legacyRepo)
 	}
 }
