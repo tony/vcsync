@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/vcs"
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
@@ -17,12 +18,12 @@ func main() {
 	}
 	m := map[string]map[string]interface{}{}
 	var repos []vcs.Repo
-	fmt.Println(repos)
+	log.Println(repos)
 	var legacyRepos []LegacyRepoConf
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
 		ExpandConfig(x, m[x], &legacyRepos, viper.Sub(x))
-		fmt.Println(legacyRepos[len(legacyRepos)-1:][0])
+		log.Println(legacyRepos[len(legacyRepos)-1:][0])
 	}
 }
 
@@ -34,9 +35,9 @@ type LegacyRepoConf struct {
 }
 
 func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf, v *viper.Viper) {
-	//fmt.Println(dir)
+	//log.Println(dir)
 	for name, repo := range entries {
-		// fmt.Printf("name: %v\t repo: %v\n", name, repo)
+		// log.Printf("name: %v\t repo: %v\n", name, repo)
 		var remotes map[string]string
 		var repo_url string
 		switch repo.(type) {
@@ -44,9 +45,10 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 			remotes = nil
 			repo_url = repo.(string)
 		case map[interface{}]interface{}:
+			log.Printf("name: %v\t repo: %v", name, repo)
 			r := cast.ToStringMap(repo.(map[interface{}]interface{}))
-			remote_map := cast.ToStringMapString(r["remotes"].(map[interface{}]interface{}))
 			if r["remotes"] != nil {
+				remote_map := cast.ToStringMapString(r["remotes"].(map[interface{}]interface{}))
 				for remote_name, remote := range remote_map {
 					remotes = map[string]string{
 						remote_name: remote,
@@ -54,12 +56,12 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 				}
 			} else {
 				remotes = nil
-				fmt.Printf("No remotes detected, check your formatting for %s at %s", name, repo)
+				log.Printf("No remotes detected, check your formatting for %s at %s", name, repo)
 			}
 			repo_url = r["repo"].(string)
 
 		default:
-			fmt.Printf("undefined name %v: verbose repo (type %T)\n", name, repo)
+			log.Printf("undefined name %v: verbose repo (type %T)\n", name, repo)
 			continue
 		}
 		*repos = append(*repos, LegacyRepoConf{
