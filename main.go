@@ -37,38 +37,36 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 	//fmt.Println(dir)
 	for name, repo := range entries {
 		// fmt.Printf("name: %v\t repo: %v\n", name, repo)
+		var remotes map[string]string
+		var repo_url string
 		switch repo.(type) {
 		case string:
-			*repos = append(*repos, LegacyRepoConf{
-				name:    name,
-				url:     repo.(string),
-				path:    dir,
-				remotes: nil,
-			})
+			remotes = nil
+			repo_url = repo.(string)
 		case map[interface{}]interface{}:
 			r := cast.ToStringMap(repo.(map[interface{}]interface{}))
+			remote_map := cast.ToStringMapString(r["remotes"].(map[interface{}]interface{}))
 			if r["remotes"] != nil {
-				for remote_name, remote := range cast.ToStringMapString(r["remotes"].(map[interface{}]interface{})) {
-					*repos = append(*repos, LegacyRepoConf{
-						name: name,
-						path: dir,
-						url:  r["repo"].(string),
-						remotes: map[string]string{
-							remote_name: remote,
-						},
-					})
+				for remote_name, remote := range remote_map {
+					remotes = map[string]string{
+						remote_name: remote,
+					}
 				}
 			} else {
-				*repos = append(*repos, LegacyRepoConf{
-					name:    name,
-					path:    dir,
-					url:     r["repo"].(string),
-					remotes: nil,
-				})
+				remotes = nil
 				fmt.Printf("No remotes detected, check your formatting for %s at %s", name, repo)
 			}
+			repo_url = r["repo"].(string)
+
 		default:
-			fmt.Printf("name %v: verbose repo (type %T)\n", name, repo)
+			fmt.Printf("undefined name %v: verbose repo (type %T)\n", name, repo)
+			continue
 		}
+		*repos = append(*repos, LegacyRepoConf{
+			name:    name,
+			path:    dir,
+			url:     repo_url,
+			remotes: remotes,
+		})
 	}
 }
