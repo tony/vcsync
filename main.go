@@ -48,10 +48,9 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 		case map[interface{}]interface{}:
 			r := cast.ToStringMap(repo)
 			if r["remotes"] != nil {
+				legacyRepo.remotes = make(map[string]string)
 				for rname, rurl := range cast.ToStringMapString(r["remotes"]) {
-					legacyRepo.remotes = map[string]string{
-						rname: rurl,
-					}
+					legacyRepo.remotes[rname] = rurl
 				}
 			} else {
 				log.Printf("No remotes detected, check your formatting for %s at %s", name, repo)
