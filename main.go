@@ -23,9 +23,9 @@ func main() {
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
 		ExpandConfig(x, m[x], &legacyRepos, viper.Sub(x))
-		log.Println(legacyRepos[len(legacyRepos)-1:])
+		log.Info(legacyRepos[len(legacyRepos)-1:])
 	}
-	log.Printf("%d repositories loaded.", len(legacyRepos))
+	log.Infof("%d repositories loaded.", len(legacyRepos))
 }
 
 type LegacyRepoConf struct {
@@ -53,12 +53,12 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 					legacyRepo.remotes[rname] = rurl
 				}
 			} else {
-				log.Printf("No remotes detected, check your formatting for %s at %s", name, repo)
+				log.Infof("No remotes detected, check your formatting for %s at %s", name, repo)
 			}
 			legacyRepo.url = r["repo"].(string)
 
 		default:
-			log.Printf("undefined name %v: verbose repo (type %T)\n", name, repo)
+			log.Infof("undefined name %v: verbose repo (type %T)\n", name, repo)
 			continue
 		}
 		*repos = append(*repos, legacyRepo)
