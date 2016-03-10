@@ -22,7 +22,7 @@ func main() {
 	var legacyRepos []LegacyRepoConf
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
-		ExpandConfig(x, m[x], &legacyRepos, viper.Sub(x))
+		ExpandConfig(x, m[x], &legacyRepos)
 		log.Info(legacyRepos[len(legacyRepos)-1:])
 	}
 	log.Infof("%d repositories loaded.", len(legacyRepos))
@@ -35,7 +35,7 @@ type LegacyRepoConf struct {
 	remotes map[string]string
 }
 
-func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf, v *viper.Viper) {
+func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf) {
 	for name, repo := range entries {
 		log.Debug("name: %v\t repo: %v", name, repo)
 		legacyRepo := LegacyRepoConf{
