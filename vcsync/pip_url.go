@@ -3,7 +3,34 @@
 
 package vcsync
 
-func ParsePIPUrl(vcsUrl string) (string, error) {
+import (
+	"errors"
+	"net/url"
+	"regexp"
+)
 
-	return "git", nil
+type VcsURL struct {
+	url.URL
+	VCS string
+}
+
+var (
+	ErrCannotDetectVCS = errors.New("Cannot detect VCS")
+)
+
+func ParsePIPUrl(vcsUrl string) (VcsURL, error) {
+	urlp, err := url.Parse(vcsUrl)
+	if err != nil {
+		return VcsURL{}, err
+	}
+	v := regexp.MustCompile(`(?P<type>git|hg|svn|bzr).*$`)
+
+	m := v.FindStringSubmatch(urlp.Scheme)
+	if m == nil {
+		return VcsURL{}, ErrCannotDetectVCS
+	} else {
+		return VcsURL{
+			*urlp, m[1],
+		}, nil
+	}
 }
