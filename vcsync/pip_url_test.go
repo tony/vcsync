@@ -4,14 +4,22 @@ import "testing"
 import "github.com/tony/vcsync/vcsync"
 
 func TestFindsGit(t *testing.T) {
-	vcstype, err := vcsync.ParsePIPUrl("git+https://github.com/tony/.dot-configs")
+	var configTests = []struct {
+		url string
+		vcs string
+	}{
+		{"git+https://github.com/tony/.dot-configs", "git"},
+	}
 
-	if vcstype.VCS != "git" {
-		t.Errorf("vcs should resolve to git, got: %v", vcstype)
+	for _, tt := range configTests {
+
+		vcstype, err := vcsync.ParsePIPUrl(tt.url)
+
+		if vcstype.VCS != tt.vcs {
+			t.Errorf("vcs should resolve to git, got: %v", vcstype)
+		}
+		if err != nil {
+			t.Error(err)
+		}
 	}
-	if err != nil {
-		t.Error(err)
-	}
-	// Output:
-	// Hi
 }
