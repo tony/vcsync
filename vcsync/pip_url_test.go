@@ -111,9 +111,8 @@ func TestRepo(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(repo)
-		// if repo.Vcs() != vcs.Hg {
-		// 	t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
-		// }
+		if repo.Vcs() != tb._type {
+			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
+		}
 	}
 }
