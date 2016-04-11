@@ -1,24 +1,30 @@
 package vcsync_test
 
-import "testing"
-import "github.com/tony/vcsync/vcsync"
+import (
+	"io/ioutil"
+	"os"
+	"testing"
+
+	"github.com/Masterminds/vcs"
+	"github.com/tony/vcsync/vcsync"
+)
 
 func TestFindsVcsType(t *testing.T) {
 	var configTests = []struct {
-		url string
-		vcs string
+		url   string
+		vtype vcs.Type
 	}{
-		{"git+https://github.com/tony/.dot-configs", "git"},
-		{"git+ssh://git@github.com/tony/roundup.git", "git"},
-		{"hg+http://foicica.com/hg/textadept", "hg"},
-		{"svn+http://svn.code.sf.net/p/docutils/code/trunk", "svn"},
+		{"git+https://github.com/tony/.dot-configs", vcs.Git},
+		{"git+ssh://git@github.com/tony/roundup.git", vcs.Git},
+		{"hg+http://foicica.com/hg/textadept", vcs.Hg},
+		{"svn+http://svn.code.sf.net/p/docutils/code/trunk", vcs.Svn},
 	}
 
 	for _, tt := range configTests {
 		vcsinfo, err := vcsync.ParsePIPUrl(tt.url)
 
-		if vcsinfo.VCSType != tt.vcs {
-			t.Errorf("vcs should resolve to %s, got: %v", tt.vcs, vcsinfo.VCSType)
+		if vcsinfo.VCSType != tt.vtype {
+			t.Errorf("vcs should resolve to %s, got: %v", tt.vtype, vcsinfo.VCSType)
 		}
 		if err != nil {
 			t.Error(err)
@@ -69,5 +75,45 @@ func TestFindsLocation(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+	}
+}
+
+func TestRepo(t *testing.T) {
+	var configTests = []struct {
+		url      string
+		location string
+		_type    vcs.Type
+	}{
+		{"git+https://github.com/tony/.dot-configs@moo", "https://github.com/tony/.dot-configs", vcs.Git},
+		{"git+ssh://git@github.com/tony/roundup.git@master", "ssh://git@github.com/tony/roundup.git", vcs.Git},
+		{"hg+http://foicica.com/hg/textadept@ha", "http://foicica.com/hg/textadept", vcs.Hg},
+		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "http://svn.code.sf.net/p/docutils/code/trunk", vcs.Svn},
+	}
+
+	tempDir, err := ioutil.TempDir("", "go-vcs-hg-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	for _, tb := range configTests {
+		vcsinfo, err := vcsync.ParsePIPUrl(tb.url)
+		if err != nil {
+			t.Error(err)
+		}
+		repo, err := vcsync.NewRepo(vcsinfo.VCSType, vcsinfo.Location, tempDir+"/testhgrepo")
+
+		if err != nil {
+			t.Error(err)
+		}
+		t.Log(repo)
+		// if repo.Vcs() != vcs.Hg {
+		// 	t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
+		// }
 	}
 }
