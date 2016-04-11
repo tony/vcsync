@@ -11,8 +11,9 @@ import (
 
 type VcsURL struct {
 	url.URL
-	VCSType string
-	Branch  string
+	VCSType  string
+	Location string
+	Branch   string
 }
 
 var (
@@ -24,16 +25,15 @@ func ParsePIPUrl(vcsUrl string) (VcsURL, error) {
 	if err != nil {
 		return VcsURL{}, err
 	}
-	v := regexp.MustCompile(`(?P<type>git|hg|svn|bzr).*$`)
-	m := v.FindStringSubmatch(urlp.Scheme)
 
-	v = regexp.MustCompile(`(?P<url>.*?)@?(?P<branch>[^@]*)$`)
+	v := regexp.MustCompile(`(?P<type>git|hg|svn|bzr)\+(?P<location>.*?)@?(?P<branch>[^@]*)$`)
 	u := v.FindStringSubmatch(urlp.String())
-	if m == nil {
+
+	if u == nil {
 		return VcsURL{}, ErrCannotDetectVCS
 	} else {
 		return VcsURL{
-			*urlp, m[1], u[2],
+			*urlp, u[1], u[2], u[3],
 		}, nil
 	}
 }

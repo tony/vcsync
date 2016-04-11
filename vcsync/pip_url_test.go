@@ -48,3 +48,26 @@ func TestFindsBranch(t *testing.T) {
 		}
 	}
 }
+
+func TestFindsLocation(t *testing.T) {
+	var configTests = []struct {
+		url      string
+		location string
+	}{
+		{"git+https://github.com/tony/.dot-configs@moo", "https://github.com/tony/.dot-configs"},
+		{"git+ssh://git@github.com/tony/roundup.git@master", "ssh://git@github.com/tony/roundup.git"},
+		{"hg+http://foicica.com/hg/textadept@ha", "http://foicica.com/hg/textadept"},
+		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "http://svn.code.sf.net/p/docutils/code/trunk"},
+	}
+
+	for _, tb := range configTests {
+		vcsinfo, err := vcsync.ParsePIPUrl(tb.url)
+
+		if vcsinfo.Location != tb.location {
+			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
+		}
+		if err != nil {
+			t.Error(err)
+		}
+	}
+}
