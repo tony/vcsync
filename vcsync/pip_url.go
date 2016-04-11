@@ -13,7 +13,7 @@ import (
 
 type VcsURL struct {
 	url.URL
-	VCSType  vcs.Type
+	Vtype    vcs.Type
 	Location string
 	Branch   string
 }

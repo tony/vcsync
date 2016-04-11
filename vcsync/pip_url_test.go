@@ -23,8 +23,8 @@ func TestFindsVcsType(t *testing.T) {
 	for _, tt := range configTests {
 		vcsinfo, err := vcsync.ParsePIPUrl(tt.url)
 
-		if vcsinfo.VCSType != tt.vtype {
-			t.Errorf("vcs should resolve to %s, got: %v", tt.vtype, vcsinfo.VCSType)
+		if vcsinfo.Vtype != tt.vtype {
+			t.Errorf("vcs should resolve to %s, got: %v", tt.vtype, vcsinfo.Vtype)
 		}
 		if err != nil {
 			t.Error(err)
@@ -82,7 +82,7 @@ func TestRepo(t *testing.T) {
 	var configTests = []struct {
 		url      string
 		location string
-		_type    vcs.Type
+		vtype    vcs.Type
 	}{
 		{"git+https://github.com/tony/.dot-configs@moo", "https://github.com/tony/.dot-configs", vcs.Git},
 		{"git+ssh://git@github.com/tony/roundup.git@master", "ssh://git@github.com/tony/roundup.git", vcs.Git},
@@ -106,12 +106,12 @@ func TestRepo(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		repo, err := vcsync.NewRepo(vcsinfo.VCSType, vcsinfo.Location, tempDir+"/testhgrepo")
+		repo, err := vcsync.NewRepo(vcsinfo.Vtype, vcsinfo.Location, tempDir+"/testhgrepo")
 
 		if err != nil {
 			t.Error(err)
 		}
-		if repo.Vcs() != tb._type {
+		if repo.Vcs() != tb.vtype {
 			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
 		}
 	}
