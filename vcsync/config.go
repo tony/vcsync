@@ -1,6 +1,9 @@
 package vcsync
 
 import (
+	"fmt"
+
+	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cast"
 )
@@ -39,5 +42,40 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 			continue
 		}
 		*repos = append(*repos, legacyRepo)
+	}
+}
+
+func NewRepo(vtype vcs.Type, remote, local string) (vcs.Repo, error) {
+	switch vtype {
+	case vcs.Git:
+		return vcs.NewGitRepo(remote, local)
+	case vcs.Svn:
+		return vcs.NewSvnRepo(remote, local)
+	case vcs.Hg:
+		return vcs.NewHgRepo(remote, local)
+	case vcs.Bzr:
+		return vcs.NewBzrRepo(remote, local)
+	}
+
+	// Should never fall through to here but just in case.
+	return nil, ErrCannotDetectVCS
+}
+
+func GetRepo(repo vcs.Repo) {
+	repo.Vcs()
+	// Returns Git as this is a Git repo
+
+	err := repo.Get()
+	// Pulls down a repo, or a checkout in the case of SVN, and returns an
+	// error if that didn't happen successfully.
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = repo.UpdateVersion("master")
+	// Checkouts out a specific version. In most cases this can be a commit id,
+	// branch, or tag.
+	if err != nil {
+		fmt.Println(err)
 	}
 }

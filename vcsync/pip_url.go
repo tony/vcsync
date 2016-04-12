@@ -1,5 +1,8 @@
+// Support for parsing pip-style RFC3986 URL's
+//
 // Package provides support for pip (python package manager) style
-// URL's
+// vcsync uses this style of URL for consolidating the VCS type,
+// location (locally or internet) and branch in one string.
 
 package vcsync
 
@@ -48,20 +51,4 @@ func ParsePIPUrl(vcsUrl string) (VcsURL, error) {
 			*urlp, vtype, u[2], u[3],
 		}, nil
 	}
-}
-
-func NewRepo(vtype vcs.Type, remote, local string) (vcs.Repo, error) {
-	switch vtype {
-	case vcs.Git:
-		return vcs.NewGitRepo(remote, local)
-	case vcs.Svn:
-		return vcs.NewSvnRepo(remote, local)
-	case vcs.Hg:
-		return vcs.NewHgRepo(remote, local)
-	case vcs.Bzr:
-		return vcs.NewBzrRepo(remote, local)
-	}
-
-	// Should never fall through to here but just in case.
-	return nil, ErrCannotDetectVCS
 }
