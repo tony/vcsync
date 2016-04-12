@@ -2,6 +2,7 @@ package vcsync
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
@@ -13,6 +14,23 @@ type LegacyRepoConf struct {
 	Url     string
 	Path    string
 	Remotes map[string]string
+}
+
+// Local interface we create since vcs.GitRepo won't carry
+// the runFromDir method along.
+type Repo interface {
+	vcs.Repo
+	runFromDir(cmd string, args ...string) ([]byte, error)
+}
+
+// Version retrieves the current version.
+func AddRemote(s Repo, name, url string) (string, error) {
+	out, err := s.runFromDir("git", "remote", "add", name, url)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(out)), nil
 }
 
 func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf) {
