@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/Masterminds/vcs"
+	"github.com/tony/vcs"
 )
 
 type VcsURL struct {

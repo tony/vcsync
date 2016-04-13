@@ -3,7 +3,7 @@ package vcsync_test
 import (
 	"testing"
 
-	"github.com/Masterminds/vcs"
+	"github.com/tony/vcs"
 	"github.com/tony/vcsync/vcsync"
 )
 

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cast"
+	"github.com/tony/vcs"
 )
 
 type LegacyRepoConf struct {
@@ -16,16 +16,22 @@ type LegacyRepoConf struct {
 	Remotes map[string]string
 }
 
-// Local interface we create since vcs.GitRepo won't carry
-// the runFromDir method along.
-type Repo interface {
-	vcs.Repo
-	runFromDir(cmd string, args ...string) ([]byte, error)
+// Version retrieves the current version.
+func AddRemote(s *vcs.GitRepo, name, url string) (string, error) {
+	out, err := s.RunFromDir("git", "remote", "add", name, url)
+
+	if err != nil {
+		// if strings.Contains(fmt.Sprintf("remote %s already exists.", name), err.Error()) {
+		// 		return UpdateRemote(s, name, url)
+		// 	}
+		return "", err
+	}
+
+	return strings.TrimSpace(string(out)), nil
 }
 
-// Version retrieves the current version.
-func AddRemote(s Repo, name, url string) (string, error) {
-	out, err := s.runFromDir("git", "remote", "add", name, url)
+func UpdateRemote(s vcs.Repo, name, url string) (string, error) {
+	out, err := s.RunFromDir("git", "remote", "set-url", name, url)
 	if err != nil {
 		return "", err
 	}
