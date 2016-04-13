@@ -1,6 +1,7 @@
 package vcsync
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -21,18 +22,22 @@ func AddRemote(s *vcs.GitRepo, name, url string) (string, error) {
 	out, err := s.RunFromDir("git", "remote", "add", name, url)
 
 	if err != nil {
-		// if strings.Contains(fmt.Sprintf("remote %s already exists.", name), err.Error()) {
-		// 		return UpdateRemote(s, name, url)
-		// 	}
+		if strings.Contains(string(out), fmt.Sprintf("remote %s already exists.", name)) {
+			return "", errors.New(string(out))
+			// 		return UpdateRemote(s, name, url)
+		}
 		return "", err
 	}
 
 	return strings.TrimSpace(string(out)), nil
 }
 
-func UpdateRemote(s vcs.Repo, name, url string) (string, error) {
+func UpdateRemote(s *vcs.GitRepo, name, url string) (string, error) {
 	out, err := s.RunFromDir("git", "remote", "set-url", name, url)
 	if err != nil {
+		// if string(out) != "" {
+		// 	return "", errors.New(strings.TrimSpace(string(out)))
+		// }
 		return "", err
 	}
 

@@ -1,6 +1,7 @@
 package vcsync_test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -98,6 +99,30 @@ func TestGitRemotes(t *testing.T) {
 	}
 
 	if !strings.Contains(string(out), new_repo_remote) {
-		t.Errorf("vcs should update remote properly, %s not found in %s", new_repo_remote, string(out))
+		t.Errorf("vcs should add remote properly, %s not found in %s", new_repo_remote, string(out))
+	}
+
+	// Adding a remote already exists
+	duplicate_remote := "https://github.com/wut/wut"
+
+	_, err = vcsync.AddRemote(repo, "origin", duplicate_remote)
+	if !strings.Contains(err.Error(), fmt.Sprintf("remote %s already exists.", "origin")) {
+		t.Error("Adding a remote if one exist should raise an error")
+	}
+
+	// Update a repo
+	_, err = vcsync.UpdateRemote(repo, "origin", duplicate_remote)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	out, err = repo.RunFromDir("git", "remote", "-v")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !strings.Contains(string(out), duplicate_remote) {
+		t.Errorf("vcs should update remote properly, %s not found in %s", duplicate_remote, string(out))
 	}
 }
