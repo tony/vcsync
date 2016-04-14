@@ -103,15 +103,15 @@ func TestGitRemotes(t *testing.T) {
 	}
 
 	// Adding a remote already exists
-	duplicate_remote := "https://github.com/wut/wut"
+	second_remote := "https://github.com/wut/wut"
 
-	_, err = vcsync.AddRemote(repo, "origin", duplicate_remote)
+	_, err = vcsync.AddRemote(repo, "origin", second_remote)
 	if !strings.Contains(err.Error(), fmt.Sprintf("remote %s already exists.", "origin")) {
 		t.Error("Adding a remote if one exist should raise an error")
 	}
 
 	// Update a repo
-	_, err = vcsync.UpdateRemote(repo, "origin", duplicate_remote)
+	_, err = vcsync.UpdateRemote(repo, "origin", second_remote)
 
 	if err != nil {
 		t.Error(err)
@@ -122,7 +122,7 @@ func TestGitRemotes(t *testing.T) {
 		t.Error(err)
 	}
 
-	if !strings.Contains(string(out), duplicate_remote) {
-		t.Errorf("vcs should update remote properly, %s not found in %s", duplicate_remote, string(out))
+	if !strings.Contains(string(out), second_remote) {
+		t.Errorf("vcs should update remote properly, %s not found in %s", second_remote, string(out))
 	}
 }

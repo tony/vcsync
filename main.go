@@ -29,12 +29,12 @@ func main() {
 	log.Infof("%d repositories loaded.", len(legacyRepos))
 
 	for _, repo := range legacyRepos {
-		repoUrl, err := url.Parse(repo.Url)
+		repoURL, err := url.Parse(repo.URL)
 		if err != nil {
-			log.Infof("Error parsing URL %v", repo.Url)
+			log.Infof("Error parsing URL %v", repo.URL)
 		}
-		repoUrl.Scheme = ""
-		log.Info(repoUrl.String())
-		log.Info(repo.Url)
+		repoURL.Scheme = ""
+		log.Info(repoURL.String())
+		log.Info(repo.URL)
 	}
 }

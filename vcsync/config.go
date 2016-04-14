@@ -12,7 +12,7 @@ import (
 
 type LegacyRepoConf struct {
 	Name    string
-	Url     string
+	URL     string
 	Path    string
 	Remotes map[string]string
 }
@@ -53,7 +53,7 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 		}
 		switch repo.(type) {
 		case string:
-			legacyRepo.Url = repo.(string)
+			legacyRepo.URL = repo.(string)
 		case map[interface{}]interface{}:
 			r := cast.ToStringMap(repo)
 			if r["remotes"] != nil {
@@ -64,7 +64,7 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 			} else {
 				log.Infof("No remotes detected, check your formatting for %s at %s", name, repo)
 			}
-			legacyRepo.Url = r["repo"].(string)
+			legacyRepo.URL = r["repo"].(string)
 
 		default:
 			log.Infof("undefined name %v: verbose repo (type %T)\n", name, repo)

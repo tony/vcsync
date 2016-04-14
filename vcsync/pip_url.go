@@ -22,7 +22,7 @@ type VcsURL struct {
 }
 
 var (
-	ErrCannotDetectVCS = errors.New("Cannot detect VCS")
+	ErrCannotDetectVCS = errors.New("cannot detect VCS")
 )
 
 func ParsePIPUrl(vcsUrl string) (VcsURL, error) {
