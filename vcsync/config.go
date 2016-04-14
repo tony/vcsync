@@ -10,6 +10,7 @@ import (
 	"github.com/tony/vcs"
 )
 
+// LegacyRepoConf is an ephemeral data struct for processing configs.
 type LegacyRepoConf struct {
 	Name    string
 	URL     string
@@ -17,7 +18,7 @@ type LegacyRepoConf struct {
 	Remotes map[string]string
 }
 
-// Version retrieves the current version.
+// AddRemote adds a remote to a git repository.
 func AddRemote(s *vcs.GitRepo, name, url string) (string, error) {
 	out, err := s.RunFromDir("git", "remote", "add", name, url)
 
@@ -32,18 +33,17 @@ func AddRemote(s *vcs.GitRepo, name, url string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+// UpdateRemote updates the url of a current remote.
 func UpdateRemote(s *vcs.GitRepo, name, url string) (string, error) {
 	out, err := s.RunFromDir("git", "remote", "set-url", name, url)
 	if err != nil {
-		// if string(out) != "" {
-		// 	return "", errors.New(strings.TrimSpace(string(out)))
-		// }
 		return "", err
 	}
 
 	return strings.TrimSpace(string(out)), nil
 }
 
+// ExpandConfig expands the JSON/YAML configuration into Repo objects.
 func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf) {
 	for name, repo := range entries {
 		log.Debug("name: %v\t repo: %v", name, repo)
@@ -74,6 +74,7 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 	}
 }
 
+// NewRepo is a generic function for created a new repo object from vcs.Type.
 func NewRepo(vtype vcs.Type, remote, local string) (vcs.Repo, error) {
 	switch vtype {
 	case vcs.Git:
@@ -88,23 +89,4 @@ func NewRepo(vtype vcs.Type, remote, local string) (vcs.Repo, error) {
 
 	// Should never fall through to here but just in case.
 	return nil, ErrCannotDetectVCS
-}
-
-func GetRepo(repo vcs.Repo) {
-	repo.Vcs()
-	// Returns Git as this is a Git repo
-
-	err := repo.Get()
-	// Pulls down a repo, or a checkout in the case of SVN, and returns an
-	// error if that didn't happen successfully.
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = repo.UpdateVersion("master")
-	// Checkouts out a specific version. In most cases this can be a commit id,
-	// branch, or tag.
-	if err != nil {
-		fmt.Println(err)
-	}
 }

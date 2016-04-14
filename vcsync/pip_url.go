@@ -14,6 +14,7 @@ import (
 	"github.com/tony/vcs"
 )
 
+// VcsURL stores parsed data from pip-style URLs.
 type VcsURL struct {
 	url.URL
 	Vtype    vcs.Type
@@ -21,12 +22,14 @@ type VcsURL struct {
 	Branch   string
 }
 
+// Error for VCS detection and parsing failures
 var (
 	ErrCannotDetectVCS = errors.New("cannot detect VCS")
 )
 
-func ParsePIPUrl(vcsUrl string) (VcsURL, error) {
-	urlp, err := url.Parse(vcsUrl)
+// ParsePIPUrl parses PIP-style RFC3986 URLs.
+func ParsePIPUrl(rawURL string) (VcsURL, error) {
+	urlp, err := url.Parse(rawURL)
 	if err != nil {
 		return VcsURL{}, err
 	}
@@ -46,9 +49,9 @@ func ParsePIPUrl(vcsUrl string) (VcsURL, error) {
 
 	if u == nil {
 		return VcsURL{}, ErrCannotDetectVCS
-	} else {
-		return VcsURL{
-			*urlp, vtype, u[2], u[3],
-		}, nil
 	}
+
+	return VcsURL{
+		*urlp, vtype, u[2], u[3],
+	}, nil
 }
