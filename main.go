@@ -20,7 +20,7 @@ func main() {
 	m := map[string]map[string]interface{}{}
 	var repos []vcs.Repo
 	log.Println(repos)
-	var legacyRepos []vcsync.LegacyRepoConf
+	var legacyRepos []vcsync.VCSRepo
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
 		vcsync.ExpandConfig(x, m[x], &legacyRepos)

@@ -3,6 +3,7 @@ package vcsync
 import (
 	"errors"
 	"fmt"
+	"path"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -10,8 +11,9 @@ import (
 	"github.com/tony/vcs"
 )
 
-// LegacyRepoConf is an ephemeral data struct for processing configs.
-type LegacyRepoConf struct {
+// VCSRepo is an ephemeral data struct for processing configs.
+type VCSRepo struct {
+	Repo    vcs.Repo
 	Name    string
 	URL     string
 	Path    string
@@ -44,10 +46,10 @@ func UpdateRemote(s *vcs.GitRepo, name, url string) (string, error) {
 }
 
 // ExpandConfig expands the JSON/YAML configuration into Repo objects.
-func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRepoConf) {
+func ExpandConfig(dir string, entries map[string]interface{}, repos *[]VCSRepo) {
 	for name, repo := range entries {
 		log.Debug("name: %v\t repo: %v", name, repo)
-		legacyRepo := LegacyRepoConf{
+		legacyRepo := VCSRepo{
 			Name: name,
 			Path: dir,
 		}
@@ -70,8 +72,24 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]LegacyRep
 			log.Infof("undefined name %v: verbose repo (type %T)\n", name, repo)
 			continue
 		}
+		var err error
+		legacyRepo.Repo, _ = NewRepoFromPipURL(legacyRepo.URL, path.Join(dir, name))
+		if err != nil {
+			log.Infof("failure adding %v (type %T) as repo\n", name, repo)
+			continue
+		}
 		*repos = append(*repos, legacyRepo)
 	}
+}
+
+// NewRepoFromPipURL returns Repo object from pip url
+func NewRepoFromPipURL(remote, local string) (vcs.Repo, error) {
+	pipURL, err := ParsePIPUrl(remote)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewRepo(pipURL.Vtype, pipURL.Location, local)
 }
 
 // NewRepo is a generic function for created a new repo object from vcs.Type.
