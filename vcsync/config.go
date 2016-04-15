@@ -84,7 +84,7 @@ func ExpandConfig(dir string, entries map[string]interface{}, repos *[]VCSRepo) 
 
 // NewRepoFromPipURL returns Repo object from pip url
 func NewRepoFromPipURL(remote, local string) (vcs.Repo, error) {
-	pipURL, err := ParsePIPUrl(remote)
+	pipURL, err := ParsePipURL(remote)
 	if err != nil {
 		return nil, err
 	}

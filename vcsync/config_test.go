@@ -36,7 +36,7 @@ func TestRepo(t *testing.T) {
 	}()
 
 	for _, tb := range configTests {
-		vcsinfo, err := vcsync.ParsePIPUrl(tb.url)
+		vcsinfo, err := vcsync.ParsePipURL(tb.url)
 		if err != nil {
 			t.Error(err)
 		}

@@ -27,8 +27,8 @@ var (
 	ErrCannotDetectVCS = errors.New("cannot detect VCS")
 )
 
-// ParsePIPUrl parses PIP-style RFC3986 URLs.
-func ParsePIPUrl(rawURL string) (VcsURL, error) {
+// ParsePipURL parses PIP-style RFC3986 URLs.
+func ParsePipURL(rawURL string) (VcsURL, error) {
 	urlp, err := url.Parse(rawURL)
 	if err != nil {
 		return VcsURL{}, err
