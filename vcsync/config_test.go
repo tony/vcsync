@@ -65,10 +65,6 @@ func TestGitRemotes(t *testing.T) {
 	remotePath := tempDir + "/VCSTestRemote"
 	repoPath := tempDir + "/VCSTestRepo"
 
-	// init repo
-	// initCmd := exec.Command("git", "init", repoPath)
-	// _, err = initCmd.CombinedOutput()
-
 	rmtInitCmd := exec.Command("git", "init", remotePath)
 	_, err = rmtInitCmd.CombinedOutput()
 
