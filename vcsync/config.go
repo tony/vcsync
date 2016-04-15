@@ -27,7 +27,6 @@ func AddRemote(s *vcs.GitRepo, name, url string) (string, error) {
 	if err != nil {
 		if strings.Contains(string(out), fmt.Sprintf("remote %s already exists.", name)) {
 			return "", errors.New(string(out))
-			// 		return UpdateRemote(s, name, url)
 		}
 		return "", err
 	}
