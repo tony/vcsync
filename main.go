@@ -29,12 +29,11 @@ func main() {
 	log.Infof("%d repositories loaded.", len(legacyRepos))
 
 	for _, repo := range legacyRepos {
-		repoURL, err := url.Parse(repo.URL)
+		repoURL, err := url.Parse(repo.Repo.LocalPath())
 		if err != nil {
-			log.Infof("Error parsing URL %v", repo.URL)
+			log.Infof("Error parsing URL %v", repoURL)
 		}
 		repoURL.Scheme = ""
-		log.Info(repoURL.String())
-		log.Info(repo.URL)
+		// log.Infof("local %s remote: %s", repo.Repo.LocalPath(), repo.Repo.Remote())
 	}
 }

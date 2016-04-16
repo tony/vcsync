@@ -10,6 +10,7 @@ import (
 	"errors"
 	"net/url"
 	"regexp"
+	"strings"
 
 	"github.com/tony/vcs"
 )
@@ -29,29 +30,36 @@ var (
 
 // ParsePipURL parses PIP-style RFC3986 URLs.
 func ParsePipURL(rawURL string) (VcsURL, error) {
+	if strings.HasPrefix(rawURL, "git@github.com:") {
+		rawURL = strings.Replace(rawURL, "git@github.com:", "git://github.com/", 1)
+	}
 	urlp, err := url.Parse(rawURL)
 	if err != nil {
 		return VcsURL{}, err
 	}
 
-	v := regexp.MustCompile(`(?P<type>git|hg|svn|bzr)\+(?P<location>.*?)@?(?P<branch>[^@]*)$`)
-	u := v.FindStringSubmatch(urlp.String())
+	vre := regexp.MustCompile(`(?P<type>git|hg|svn|bzr)\+?(?P<location>.*)`)
+	bre := regexp.MustCompile(`(?P<path>[^\@]*)@?(?P<branch>.*)$`)
+	v := vre.FindStringSubmatch(urlp.Scheme)
+	branch := bre.FindStringSubmatch(urlp.Path)
 
 	var vtype vcs.Type
-	switch u[1] {
+	// log.Infof("parsed url: %v, %v re:%+v", urlp.Path, urlp.Scheme, u)
+	switch v[1] {
 	case "git":
 		vtype = vcs.Git
 	case "hg":
 		vtype = vcs.Hg
 	case "svn":
 		vtype = vcs.Svn
+	case "default":
+		return VcsURL{}, errors.New("Could not find VCS")
 	}
 
-	if u == nil {
+	if v == nil {
 		return VcsURL{}, ErrCannotDetectVCS
 	}
-
 	return VcsURL{
-		*urlp, vtype, u[2], u[3],
+		*urlp, vtype, v[2] + "://" + urlp.Host + branch[1], branch[2],
 	}, nil
 }
