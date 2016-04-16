@@ -59,7 +59,7 @@ func TestFindsLocation(t *testing.T) {
 		location string
 	}{
 		{"git+https://github.com/tony/.dot-configs@moo", "https://github.com/tony/.dot-configs"},
-		{"git+ssh://git@github.com/tony/roundup.git@master", "ssh://git@github.com/tony/roundup.git"},
+		{"git+ssh://git@github.com/tony/roundup.git@master", "ssh://github.com/tony/roundup.git"},
 		{"hg+http://foicica.com/hg/textadept@ha", "http://foicica.com/hg/textadept"},
 		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "http://svn.code.sf.net/p/docutils/code/trunk"},
 	}
