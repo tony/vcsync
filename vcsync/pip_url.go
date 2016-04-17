@@ -78,6 +78,7 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 	return vcsURL, nil
 }
 
+// Location returns the location of the repository.
 func (v *VcsURL) Location() string {
 	return v.Scheme + "://" + v.Host + v.Path
 }

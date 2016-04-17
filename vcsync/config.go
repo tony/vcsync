@@ -87,8 +87,7 @@ func NewRepoFromPipURL(remote, local string) (vcs.Repo, error) {
 		return nil, err
 	}
 
-	location := pipURL.Location()
-	return NewRepo(pipURL.Vtype, location, local)
+	return NewRepo(pipURL.Vtype, pipURL.Location(), local)
 }
 
 // NewRepo is a generic function for created a new repo object from vcs.Type.
