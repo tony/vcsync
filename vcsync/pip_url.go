@@ -12,12 +12,13 @@ import (
 	"regexp"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/tony/vcs"
 )
 
 // VcsURL stores parsed data from pip-style URLs.
 type VcsURL struct {
-	url.URL
+	*url.URL
 	Vtype    vcs.Type
 	Location string
 	Branch   string
@@ -34,32 +35,47 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 		rawURL = strings.Replace(rawURL, "git@github.com:", "git://github.com/", 1)
 	}
 	urlp, err := url.Parse(rawURL)
+
 	if err != nil {
 		return VcsURL{}, err
 	}
 
-	vre := regexp.MustCompile(`(?P<type>git|hg|svn|bzr)\+?(?P<location>.*)`)
-	bre := regexp.MustCompile(`(?P<path>[^\@]*)@?(?P<branch>.*)$`)
-	v := vre.FindStringSubmatch(urlp.Scheme)
-	branch := bre.FindStringSubmatch(urlp.Path)
-
-	var vtype vcs.Type
-	// log.Infof("parsed url: %v, %v re:%+v", urlp.Path, urlp.Scheme, u)
-	switch v[1] {
-	case "git":
-		vtype = vcs.Git
-	case "hg":
-		vtype = vcs.Hg
-	case "svn":
-		vtype = vcs.Svn
-	case "default":
-		return VcsURL{}, errors.New("Could not find VCS")
+	vcsURL := VcsURL{
+		URL: urlp,
 	}
+
+	// For finding the VCS type and scheme + splitting them
+	// git+https
+	// git, https
+	vre := regexp.MustCompile(`(?P<type>git|hg|svn|bzr)\+?(?P<location>.*)`)
+
+	// For grabbing the refs in URL's, if they exist, e.g.
+	// git+https://github.com/tony/vcsync@develop
+	bre := regexp.MustCompile(`(?P<path>[^\@]*)@?(?P<branch>.*)$`)
+
+	v := vre.FindStringSubmatch(vcsURL.URL.Scheme)
+	branch := bre.FindStringSubmatch(vcsURL.URL.Path)
 
 	if v == nil {
 		return VcsURL{}, ErrCannotDetectVCS
 	}
-	return VcsURL{
-		*urlp, vtype, v[2] + "://" + urlp.Host + branch[1], branch[2],
-	}, nil
+
+	switch v[1] {
+	case "git":
+		vcsURL.Vtype = vcs.Git
+	case "hg":
+		vcsURL.Vtype = vcs.Hg
+	case "svn":
+		vcsURL.Vtype = vcs.Svn
+	case "default":
+		return VcsURL{}, ErrCannotDetectVCS
+	}
+
+	vcsURL.URL.Path = branch[1]
+	vcsURL.URL.Scheme = v[2]
+	vcsURL.Branch = branch[2]
+	vcsURL.Location = urlp.Scheme + "://" + urlp.Host + urlp.Path
+	log.Infof("vcsurl: %+v", vcsURL)
+
+	return vcsURL, nil
 }
