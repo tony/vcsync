@@ -30,10 +30,10 @@ func TestFindsVcsType(t *testing.T) {
 	}
 }
 
-func TestFindsBranch(t *testing.T) {
+func TestFindsRef(t *testing.T) {
 	var configTests = []struct {
-		url    string
-		branch string
+		url string
+		ref string
 	}{
 		{"git+https://github.com/tony/.dot-configs@moo", "moo"},
 		{"git+ssh://git@github.com/tony/roundup.git@master", "master"},
@@ -44,8 +44,8 @@ func TestFindsBranch(t *testing.T) {
 	for _, tb := range configTests {
 		vcsinfo, err := vcsync.ParsePipURL(tb.url)
 
-		if vcsinfo.Branch != tb.branch {
-			t.Errorf("vcs should resolve to %s, got: %v", tb.branch, vcsinfo.Branch)
+		if vcsinfo.Ref != tb.ref {
+			t.Errorf("vcs should resolve to %s, got: %v", tb.ref, vcsinfo.Ref)
 		}
 		if err != nil {
 			t.Error(err)

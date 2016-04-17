@@ -2,7 +2,7 @@
 //
 // Package provides support for pip (python package manager) style
 // vcsync uses this style of URL for consolidating the VCS type,
-// location (locally or internet) and branch in one string.
+// location (locally or internet) and ref in one string.
 
 package vcsync
 
@@ -19,8 +19,8 @@ import (
 // VcsURL stores parsed data from pip-style URLs.
 type VcsURL struct {
 	*url.URL
-	Vtype  vcs.Type
-	Branch string
+	Vtype vcs.Type
+	Ref   string
 }
 
 // Error for VCS detection and parsing failures
@@ -50,10 +50,10 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 
 	// For grabbing the refs in URL's, if they exist, e.g.
 	// git+https://github.com/tony/vcsync@develop
-	bre := regexp.MustCompile(`(?P<path>[^\@]*)@?(?P<branch>.*)$`)
+	bre := regexp.MustCompile(`(?P<path>[^\@]*)@?(?P<ref>.*)$`)
 
 	v := vre.FindStringSubmatch(vcsURL.URL.Scheme)
-	branch := bre.FindStringSubmatch(vcsURL.URL.Path)
+	ref := bre.FindStringSubmatch(vcsURL.URL.Path)
 
 	if v == nil {
 		return VcsURL{}, ErrCannotDetectVCS
@@ -70,9 +70,9 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 		return VcsURL{}, ErrCannotDetectVCS
 	}
 
-	vcsURL.URL.Path = branch[1]
+	vcsURL.URL.Path = ref[1]
 	vcsURL.URL.Scheme = v[2]
-	vcsURL.Branch = branch[2]
+	vcsURL.Ref = ref[2]
 	log.Infof("vcsurl: %+v", vcsURL)
 
 	return vcsURL, nil
