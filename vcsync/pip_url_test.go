@@ -67,7 +67,7 @@ func TestFindsLocation(t *testing.T) {
 	for _, tb := range configTests {
 		vcsinfo, err := vcsync.ParsePipURL(tb.url)
 
-		if vcsinfo.Location != tb.location {
+		if vcsinfo.Location() != tb.location {
 			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
 		}
 		if err != nil {

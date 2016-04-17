@@ -37,10 +37,11 @@ func TestRepo(t *testing.T) {
 
 	for _, tb := range configTests {
 		vcsinfo, err := vcsync.ParsePipURL(tb.url)
+		location := vcsinfo.Location()
 		if err != nil {
 			t.Error(err)
 		}
-		repo, err := vcsync.NewRepo(vcsinfo.Vtype, vcsinfo.Location, tempDir+"/testhgrepo")
+		repo, err := vcsync.NewRepo(vcsinfo.Vtype, location, tempDir+"/testhgrepo")
 
 		if err != nil {
 			t.Error(err)

@@ -19,9 +19,8 @@ import (
 // VcsURL stores parsed data from pip-style URLs.
 type VcsURL struct {
 	*url.URL
-	Vtype    vcs.Type
-	Location string
-	Branch   string
+	Vtype  vcs.Type
+	Branch string
 }
 
 // Error for VCS detection and parsing failures
@@ -74,8 +73,11 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 	vcsURL.URL.Path = branch[1]
 	vcsURL.URL.Scheme = v[2]
 	vcsURL.Branch = branch[2]
-	vcsURL.Location = urlp.Scheme + "://" + urlp.Host + urlp.Path
 	log.Infof("vcsurl: %+v", vcsURL)
 
 	return vcsURL, nil
+}
+
+func (v *VcsURL) Location() string {
+	return v.Scheme + "://" + v.Host + v.Path
 }
