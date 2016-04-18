@@ -105,5 +105,5 @@ func NewRepo(vtype vcs.Type, remote, local string) (vcs.Repo, error) {
 	}
 
 	// Should never fall through to here but just in case.
-	return nil, ErrCannotDetectVCS
+	return nil, vcs.ErrCannotDetectVCS
 }

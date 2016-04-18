@@ -8,7 +8,7 @@ import (
 )
 
 func TestFindsVcsType(t *testing.T) {
-	var configTests = []struct {
+	var vcsURLTests = []struct {
 		url   string
 		vtype vcs.Type
 	}{
@@ -18,7 +18,7 @@ func TestFindsVcsType(t *testing.T) {
 		{"svn+http://svn.code.sf.net/p/docutils/code/trunk", vcs.Svn},
 	}
 
-	for _, tt := range configTests {
+	for _, tt := range vcsURLTests {
 		vcsinfo, err := vcsync.ParsePipURL(tt.url)
 
 		if vcsinfo.Vtype != tt.vtype {
@@ -26,6 +26,20 @@ func TestFindsVcsType(t *testing.T) {
 		}
 		if err != nil {
 			t.Error(err)
+		}
+	}
+
+	var errTests = []struct {
+		url string
+		err error
+	}{
+		{"https://github.com/tony/.dot-configs", vcs.ErrCannotDetectVCS},
+		{"lol+https://git@github.com/tony/roundup.git", vcs.ErrCannotDetectVCS},
+	}
+	for _, tt := range errTests {
+		_, err := vcsync.ParsePipURL(tt.url)
+		if err != tt.err {
+			t.Errorf("url without vcs found should return %v, returned %v", tt.err, err)
 		}
 	}
 }

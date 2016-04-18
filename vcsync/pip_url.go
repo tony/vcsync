@@ -7,7 +7,6 @@
 package vcsync
 
 import (
-	"errors"
 	"net/url"
 	"regexp"
 	"strings"
@@ -22,11 +21,6 @@ type VcsURL struct {
 	Vtype vcs.Type
 	Ref   string
 }
-
-// Error for VCS detection and parsing failures
-var (
-	ErrCannotDetectVCS = errors.New("cannot detect VCS")
-)
 
 // ParsePipURL parses PIP-style RFC3986 URLs.
 func ParsePipURL(rawURL string) (VcsURL, error) {
@@ -56,7 +50,7 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 	ref := bre.FindStringSubmatch(vcsURL.URL.Path)
 
 	if v == nil {
-		return VcsURL{}, ErrCannotDetectVCS
+		return VcsURL{}, vcs.ErrCannotDetectVCS
 	}
 
 	switch v[1] {
@@ -67,7 +61,7 @@ func ParsePipURL(rawURL string) (VcsURL, error) {
 	case "svn":
 		vcsURL.Vtype = vcs.Svn
 	case "default":
-		return VcsURL{}, ErrCannotDetectVCS
+		return VcsURL{}, vcs.ErrCannotDetectVCS
 	}
 
 	vcsURL.URL.Path = ref[1]
