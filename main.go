@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
@@ -18,9 +17,10 @@ func main() {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	m := map[string]map[string]interface{}{}
+
 	var repos []vcs.Repo
-	log.Println(repos)
 	var legacyRepos []vcsync.VCSRepo
+
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
 		vcsync.ExpandConfig(x, m[x], &legacyRepos)
@@ -29,11 +29,6 @@ func main() {
 	log.Infof("%d repositories loaded.", len(legacyRepos))
 
 	for _, repo := range legacyRepos {
-		repoURL, err := url.Parse(repo.Repo.LocalPath())
-		if err != nil {
-			log.Infof("Error parsing URL %v", repoURL)
-		}
-		repoURL.Scheme = ""
-		// log.Infof("local %s remote: %s", repo.Repo.LocalPath(), repo.Repo.Remote())
+		log.Infof("%s @ %s", repo.Repo.LocalPath(), repo.Repo.Remote())
 	}
 }
