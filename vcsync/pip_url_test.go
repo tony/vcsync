@@ -36,6 +36,7 @@ func TestFindsRef(t *testing.T) {
 		ref string
 	}{
 		{"git+https://github.com/tony/.dot-configs@moo", "moo"},
+		{"git+https://github.com/tony/.dot-configs", ""},
 		{"git+ssh://git@github.com/tony/roundup.git@master", "master"},
 		{"hg+http://foicica.com/hg/textadept@ha", "ha"},
 		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "2019"},
