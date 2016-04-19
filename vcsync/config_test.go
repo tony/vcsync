@@ -23,29 +23,18 @@ func TestRepo(t *testing.T) {
 		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "http://svn.code.sf.net/p/docutils/code/trunk", vcs.Svn},
 	}
 
-	tempDir, err := ioutil.TempDir("", "go-vcs-tests")
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		err = os.RemoveAll(tempDir)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
-
 	for _, tb := range configTests {
-		vcsinfo, err := vcsync.ParsePipURL(tb.url)
+		vURL, err := vcsync.ParsePipURL(tb.url)
 		if err != nil {
 			t.Error(err)
 		}
-		repo, err := vcsync.NewRepo(vcsinfo.Vtype, vcsinfo.Location(), tempDir+"/testhgrepo")
+		repo, err := vcsync.NewRepo(vURL.Vtype, vURL.Location(), "./testhgrepo")
 
 		if err != nil {
 			t.Error(err)
 		}
 		if repo.Vcs() != tb.vtype {
-			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
+			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vURL.Location())
 		}
 	}
 }
