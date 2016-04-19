@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/tony/vcsync/vcsync"
@@ -18,7 +17,6 @@ func main() {
 	}
 	m := map[string]map[string]interface{}{}
 
-	var repos []vcs.Repo
 	var legacyRepos []vcsync.VCSRepo
 
 	for _, x := range viper.AllKeys() {
