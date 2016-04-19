@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"strings"
 	"testing"
 
@@ -51,7 +50,9 @@ func TestRepo(t *testing.T) {
 	}
 }
 
-func TestGitRemotes(t *testing.T) {
+func TestGitAddRemote(t *testing.T) {
+	new_repo_remote := "https://github.com/lol/lol"
+	second_remote := "https://github.com/wut/wut"
 	tempDir, err := ioutil.TempDir("", "go-vcs-tests")
 	if err != nil {
 		t.Error(err)
@@ -62,30 +63,17 @@ func TestGitRemotes(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	remotePath := tempDir + "/VCSTestRemote"
-	repoPath := tempDir + "/VCSTestRepo"
 
-	rmtInitCmd := exec.Command("git", "init", remotePath)
-	_, err = rmtInitCmd.CombinedOutput()
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	repo, err := vcs.NewGitRepo(remotePath, repoPath)
+	repo, err := vcs.NewGitRepo(tempDir+"/VCSTestRemote", tempDir+"/VCSTestRepo")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = repo.Init()
-	if err != nil {
+	if err = repo.Init(); err != nil {
 		t.Fatal(err)
 	}
 
-	new_repo_remote := "https://github.com/lol/lol"
-
-	_, err = vcsync.AddRemote(repo, "origin", new_repo_remote)
-	if err != nil {
+	if _, err = vcsync.AddRemote(repo, "origin", new_repo_remote); err != nil {
 		t.Error(err)
 	}
 
@@ -99,21 +87,48 @@ func TestGitRemotes(t *testing.T) {
 	}
 
 	// Adding a remote already exists
-	second_remote := "https://github.com/wut/wut"
-
-	_, err = vcsync.AddRemote(repo, "origin", second_remote)
-	if !strings.Contains(err.Error(), fmt.Sprintf("remote %s already exists.", "origin")) {
-		t.Error("Adding a remote if one exist should raise an error")
+	if _, err = vcsync.AddRemote(repo, "origin", second_remote); err != nil {
+		if !strings.Contains(err.Error(), fmt.Sprintf("remote %s already exists.", "origin")) {
+			t.Error("Adding a remote if one exist should raise an error")
+		}
 	}
+}
 
-	// Update a repo
-	_, err = vcsync.UpdateRemote(repo, "origin", second_remote)
-
+func TestGitUpdateRemote(t *testing.T) {
+	second_remote := "https://github.com/wut/wut"
+	tempDir, err := ioutil.TempDir("", "go-vcs-tests")
 	if err != nil {
 		t.Error(err)
 	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 
-	out, err = repo.RunFromDir("git", "remote", "-v")
+	repo, err := vcs.NewGitRepo(tempDir+"/VCSTestRemote", tempDir+"/VCSTestRepo")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = repo.Init(); err != nil {
+		t.Fatal(err)
+	}
+
+	new_repo_remote := "https://github.com/lol/lol"
+
+	if _, err = vcsync.AddRemote(repo, "origin", new_repo_remote); err != nil {
+		t.Error(err)
+	}
+
+	// Update a repo
+	if _, err = vcsync.UpdateRemote(repo, "origin", second_remote); err != nil {
+		t.Error(err)
+	}
+
+	out, err := repo.RunFromDir("git", "remote", "-v")
+
 	if err != nil {
 		t.Error(err)
 	}
