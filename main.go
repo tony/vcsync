@@ -11,22 +11,20 @@ import (
 func main() {
 	viper.SetConfigName(".vcspull")
 	viper.AddConfigPath("$HOME")
-	err := viper.ReadInConfig()
-	if err != nil {
+	var r vcsync.Repos
+	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	m := map[string]map[string]interface{}{}
 
-	var legacyRepos []vcsync.VCSRepo
-
 	for _, x := range viper.AllKeys() {
 		m[x] = viper.GetStringMap(x)
-		vcsync.ExpandConfig(x, m[x], &legacyRepos)
-		log.Debug(legacyRepos[len(legacyRepos)-1:])
+		r.LoadRepos(x, m[x])
+		log.Debug(r[len(r)-1:])
 	}
-	log.Infof("%d repositories loaded.", len(legacyRepos))
 
-	for _, repo := range legacyRepos {
+	for _, repo := range r {
 		log.Infof("%s @ %s", repo.Repo.LocalPath(), repo.Repo.Remote())
 	}
+	log.Infof("%d repositories loaded.", len(r))
 }
