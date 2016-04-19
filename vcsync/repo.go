@@ -10,6 +10,7 @@ import (
 	"github.com/tony/vcs"
 )
 
+// VCSRepo holds repo name, Repo object and list of remotes
 type VCSRepo struct {
 	Repo    vcs.Repo
 	Name    string

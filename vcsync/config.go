@@ -12,6 +12,7 @@ type Repos []VCSRepo
 
 // LoadRepos expands the JSON/YAML configuration into Repo objects.
 func (r *Repos) LoadRepos(dir string, items map[string]interface{}) {
+	var err error
 	for name, data := range items {
 		var repoURL string
 		log.Debug("name: %v\t data: %v", name, data)
@@ -37,8 +38,8 @@ func (r *Repos) LoadRepos(dir string, items map[string]interface{}) {
 			log.Infof("undefined name %v: verbose repo (type %T)\n", name, data)
 			continue
 		}
-		var err error
-		repo.Repo, _ = NewRepoFromPipURL(repoURL, path.Join(dir, name))
+
+		repo.Repo, err = NewRepoFromPipURL(repoURL, path.Join(dir, name))
 		if err != nil {
 			log.Infof("failure adding %v (type %T) as repo\n", name, data)
 			continue
