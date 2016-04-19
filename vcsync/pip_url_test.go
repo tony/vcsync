@@ -45,7 +45,7 @@ func TestFindsVcsType(t *testing.T) {
 }
 
 func TestFindsRef(t *testing.T) {
-	var configTests = []struct {
+	var vcsURLTests = []struct {
 		url string
 		ref string
 	}{
@@ -56,7 +56,7 @@ func TestFindsRef(t *testing.T) {
 		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "2019"},
 	}
 
-	for _, tb := range configTests {
+	for _, tb := range vcsURLTests {
 		u, err := vcsync.ParsePipURL(tb.url)
 		if err != nil {
 			t.Error(err)
@@ -69,7 +69,7 @@ func TestFindsRef(t *testing.T) {
 }
 
 func TestFindsLocation(t *testing.T) {
-	var configTests = []struct {
+	var vcsURLTests = []struct {
 		url      string
 		location string
 	}{
@@ -79,7 +79,7 @@ func TestFindsLocation(t *testing.T) {
 		{"svn+http://svn.code.sf.net/p/docutils/code/trunk@2019", "http://svn.code.sf.net/p/docutils/code/trunk"},
 	}
 
-	for _, tb := range configTests {
+	for _, tb := range vcsURLTests {
 		u, err := vcsync.ParsePipURL(tb.url)
 		if err != nil {
 			t.Error(err)
