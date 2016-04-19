@@ -19,10 +19,10 @@ func TestFindsVcsType(t *testing.T) {
 	}
 
 	for _, tt := range vcsURLTests {
-		vcsinfo, err := vcsync.ParsePipURL(tt.url)
+		u, err := vcsync.ParsePipURL(tt.url)
 
-		if vcsinfo.Vtype != tt.vtype {
-			t.Errorf("vcs should resolve to %s, got: %v", tt.vtype, vcsinfo.Vtype)
+		if u.Vtype != tt.vtype {
+			t.Errorf("vcs should resolve to %s, got: %v", tt.vtype, u.Vtype)
 		}
 		if err != nil {
 			t.Error(err)
@@ -57,13 +57,13 @@ func TestFindsRef(t *testing.T) {
 	}
 
 	for _, tb := range configTests {
-		vcsinfo, err := vcsync.ParsePipURL(tb.url)
-
-		if vcsinfo.Ref != tb.ref {
-			t.Errorf("vcs should resolve to %s, got: %v", tb.ref, vcsinfo.Ref)
-		}
+		u, err := vcsync.ParsePipURL(tb.url)
 		if err != nil {
 			t.Error(err)
+		}
+
+		if u.Ref != tb.ref {
+			t.Errorf("vcs should resolve to %s, got: %v", tb.ref, u.Ref)
 		}
 	}
 }
@@ -80,13 +80,13 @@ func TestFindsLocation(t *testing.T) {
 	}
 
 	for _, tb := range configTests {
-		vcsinfo, err := vcsync.ParsePipURL(tb.url)
-
-		if vcsinfo.Location() != tb.location {
-			t.Errorf("vcs should resolve to %s, got: %v", tb.location, vcsinfo.Location)
-		}
+		u, err := vcsync.ParsePipURL(tb.url)
 		if err != nil {
 			t.Error(err)
+		}
+
+		if u.Location() != tb.location {
+			t.Errorf("vcs should resolve to %s, got: %v", tb.location, u.Location)
 		}
 	}
 }
