@@ -11,8 +11,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
-	"github.com/tony/vcs"
 )
 
 // VcsURL stores parsed data from pip-style URLs. It is built on top of url.URL in stdlib.

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
-	"github.com/tony/vcs"
 )
 
 // VCSRepo holds repo name, Repo object and list of remotes

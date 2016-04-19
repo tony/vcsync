@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tony/vcs"
+	"github.com/Masterminds/vcs"
 	"github.com/tony/vcsync/vcsync"
 )
 
