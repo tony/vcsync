@@ -15,7 +15,7 @@ import (
 	"github.com/tony/vcs"
 )
 
-// VcsURL stores parsed data from pip-style URLs.
+// VcsURL stores parsed data from pip-style URLs. It is built on top of url.URL in stdlib.
 type VcsURL struct {
 	*url.URL
 	Vtype vcs.Type
