@@ -12,7 +12,7 @@ import (
 
 // VCSRepo holds repo name, Repo object and list of remotes
 type VCSRepo struct {
-	Repo    vcs.Repo
+	vcs.Repo
 	Name    string
 	Remotes map[string]string
 }
