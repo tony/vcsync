@@ -11,7 +11,7 @@ import (
 	"github.com/tony/vcsync/vcsync"
 )
 
-func TestRepo(t *testing.T) {
+func TestNewRepo(t *testing.T) {
 	var configTests = []struct {
 		url      string
 		location string
@@ -39,6 +39,19 @@ func TestRepo(t *testing.T) {
 	}
 }
 
+func createTempGitRepo(localPath, remotePath string) (*vcs.GitRepo, error) {
+	repo, err := vcs.NewGitRepo(localPath, remotePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = repo.Init(); err != nil {
+		return nil, err
+	}
+
+	return repo, nil
+}
+
 func TestGitAddRemote(t *testing.T) {
 	new_repo_remote := "https://github.com/lol/lol"
 	second_remote := "https://github.com/wut/wut"
@@ -53,13 +66,9 @@ func TestGitAddRemote(t *testing.T) {
 		}
 	}()
 
-	repo, err := vcs.NewGitRepo(tempDir+"/VCSTestRemote", tempDir+"/VCSTestRepo")
+	repo, err := createTempGitRepo(tempDir+"/VCSTestRemote", tempDir+"/VCSTestRepo")
 	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err = repo.Init(); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	if _, err = vcsync.AddRemote(repo, "origin", new_repo_remote); err != nil {
@@ -96,13 +105,9 @@ func TestGitUpdateRemote(t *testing.T) {
 		}
 	}()
 
-	repo, err := vcs.NewGitRepo(tempDir+"/VCSTestRemote", tempDir+"/VCSTestRepo")
+	repo, err := createTempGitRepo(tempDir+"/VCSTestRemote", tempDir+"/VCSTestRepo")
 	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err = repo.Init(); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	new_repo_remote := "https://github.com/lol/lol"
