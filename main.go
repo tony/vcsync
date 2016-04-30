@@ -15,7 +15,7 @@ func main() {
 	viper.AddConfigPath("$HOME")
 
 	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("fatal error config file: %s \n", err))
 	}
 	m := map[string]map[string]interface{}{}
 

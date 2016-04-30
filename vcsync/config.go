@@ -30,7 +30,7 @@ func (r *Repos) LoadRepos(dir string, items map[string]interface{}) {
 					repo.Remotes[rname] = rurl
 				}
 			} else {
-				log.Infof("No remotes detected, check your formatting for %s at %s", name, data)
+				log.Infof("no remotes detected, check your formatting for %s at %s", name, data)
 			}
 			repoURL = r["repo"].(string)
 
