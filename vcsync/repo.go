@@ -8,6 +8,7 @@ import (
 
 	"github.com/Masterminds/vcs"
 	log "github.com/Sirupsen/logrus"
+	"github.com/mitchellh/go-homedir"
 )
 
 // VCSRepo holds repo name, Repo object and list of remotes
@@ -43,7 +44,15 @@ func UpdateRemote(s *vcs.GitRepo, name, url string) (string, error) {
 
 // NewRepo is a generic function for created a new repo object from vcs.Type.
 func NewRepo(vtype vcs.Type, remote, local string) (vcs.Repo, error) {
-	log.Info(remote)
+	remote, err := homedir.Expand(remote)
+	if err != nil {
+		return nil, err
+	}
+	local, err = homedir.Expand(local)
+	if err != nil {
+		return nil, err
+	}
+
 	switch vtype {
 	case vcs.Git:
 		return vcs.NewGitRepo(remote, local)
@@ -68,4 +77,24 @@ func NewRepoFromPipURL(remote, local string) (vcs.Repo, error) {
 	}
 
 	return NewRepo(pipURL.Vtype, pipURL.Location(), local)
+}
+
+// SyncRepo
+func SyncRepo(r vcs.Repo) error {
+	if r.LocalPath() == "" {
+		return fmt.Errorf("LocalPath is empty or unassigned", r.LocalPath())
+	}
+
+	if _, err := r.Version(); err != nil {
+		if strings.Contains(err.Error(), "Unable to retrieve") {
+			_ = r.Get()
+			_, _ = r.Version()
+		} else {
+			return err
+		}
+	} else {
+		r.Update()
+	}
+
+	return nil
 }

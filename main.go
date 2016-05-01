@@ -27,6 +27,10 @@ func main() {
 
 	for _, repo := range r {
 		log.Infof("%s @ %s", repo.Repo.LocalPath(), repo.Repo.Remote())
+
 	}
+
 	log.Infof("%d repositories loaded.", len(r))
+	log.Infof("%s @ %s", r[1], r[1].LocalPath())
+	vcsync.SyncRepo(r[1])
 }

@@ -122,12 +122,60 @@ func TestGitUpdateRemote(t *testing.T) {
 	}
 
 	out, err := repo.RunFromDir("git", "remote", "-v")
-
 	if err != nil {
 		t.Error(err)
 	}
 
 	if !strings.Contains(string(out), second_remote) {
 		t.Errorf("vcs should update remote properly, %s not found in %s", second_remote, string(out))
+	}
+}
+
+func TestSyncRepo(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "go-vcs-tests")
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	var configTests = []struct {
+		localPath  string
+		remotePath string
+		vtype      vcs.Type
+	}{
+		{tempDir + "/localGit", tempDir + "/remoteGit", vcs.Git},
+	}
+
+	repos := make([]vcs.Repo, 0)
+	for _, c := range configTests {
+		r, err := vcsync.NewRepo(c.vtype, c.localPath, c.remotePath)
+		if err != nil {
+			t.Error(err)
+		}
+		if _, err := createTempGitRepo(c.localPath, c.remotePath); err != nil {
+			t.Error(err)
+		}
+		repos = append(repos, r)
+	}
+
+	for _, r := range repos {
+		// creates repo if doesn't exist
+		err := vcsync.SyncRepo(r)
+		if err != nil {
+			t.Error(err)
+		}
+
+		_, err = os.Stat(r.LocalPath())
+		if err != nil {
+			t.Error(err)
+		}
+
+		vcsync.SyncRepo(r)
+		// updates repo if exists
 	}
 }
