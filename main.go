@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"os/exec"
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -25,12 +29,37 @@ func main() {
 		log.Debug(r[len(r)-1:])
 	}
 
-	for _, repo := range r {
-		log.Infof("%s @ %s", repo.Repo.LocalPath(), repo.Repo.Remote())
+	log.Infof("%d repositories loaded.", len(r))
 
+	tasks := make(chan *exec.Cmd, 64)
+
+	// spawn four worker goroutines
+	var wg sync.WaitGroup
+	for i := 0; i < 4; i++ {
+		wg.Add(1)
+		go func() {
+			for cmd := range tasks {
+				stdout, err := cmd.StdoutPipe()
+				stderr, err := cmd.StderrPipe()
+				if err != nil {
+					log.Fatal(err)
+				}
+				cmd.Start()
+				go io.Copy(os.Stdout, stdout)
+				go io.Copy(os.Stdout, stderr)
+				cmd.Wait()
+			}
+			wg.Done()
+		}()
 	}
 
-	log.Infof("%d repositories loaded.", len(r))
-	log.Infof("%s @ %s", r[1], r[1].LocalPath())
-	vcsync.SyncRepo(r[1])
+	// generate some tasks
+	for _, m := range r[:10] {
+		tasks <- vcsync.SyncRepo(m)
+	}
+
+	close(tasks)
+
+	// wait for the workers to finish
+	wg.Wait()
 }
