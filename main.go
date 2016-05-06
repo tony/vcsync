@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
@@ -31,14 +30,16 @@ func main() {
 
 	log.Infof("%d repositories loaded.", len(r))
 
-	tasks := make(chan *exec.Cmd, 64)
+	tasks := make(chan *vcsync.VCSRepo, 64)
 
 	// spawn four worker goroutines
 	var wg sync.WaitGroup
 	for i := 0; i < 4; i++ {
 		wg.Add(1)
 		go func() {
-			for cmd := range tasks {
+
+			for n := range tasks {
+				cmd := vcsync.SyncRepo(n)
 				stdout, err := cmd.StdoutPipe()
 				stderr, err := cmd.StderrPipe()
 				if err != nil {
@@ -55,7 +56,7 @@ func main() {
 
 	// generate some tasks
 	for _, m := range r[:10] {
-		tasks <- vcsync.SyncRepo(m)
+		tasks <- &m
 	}
 
 	close(tasks)
