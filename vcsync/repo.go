@@ -4,6 +4,7 @@ package vcsync
 import (
 	"errors"
 	"fmt"
+	"os/exec"
 	"strings"
 
 	"github.com/Masterminds/vcs"
@@ -80,21 +81,10 @@ func NewRepoFromPipURL(remote, local string) (vcs.Repo, error) {
 }
 
 // SyncRepo
-func SyncRepo(r vcs.Repo) error {
-	if r.LocalPath() == "" {
-		return fmt.Errorf("LocalPath is empty or unassigned", r.LocalPath())
-	}
-
+func SyncRepo(r vcs.Repo) *exec.Cmd {
 	if _, err := r.Version(); err != nil {
-		if strings.Contains(err.Error(), "Unable to retrieve") {
-			_ = r.Get()
-			_, _ = r.Version()
-		} else {
-			return err
-		}
+		return r.GetCmd()
 	} else {
-		r.Update()
+		return r.UpdateCmd()
 	}
-
-	return nil
 }

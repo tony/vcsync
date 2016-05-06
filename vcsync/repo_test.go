@@ -165,9 +165,9 @@ func TestSyncRepo(t *testing.T) {
 
 	for _, r := range repos {
 		// creates repo if doesn't exist
-		err := vcsync.SyncRepo(r)
-		if err != nil {
-			t.Error(err)
+		cmd := vcsync.SyncRepo(r)
+		if r.GetCmd() == cmd {
+			t.Errorf("want %s, got %s", r.GetCmd(), cmd)
 		}
 
 		_, err = os.Stat(r.LocalPath())
